@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Управление дверями</title>
+  <style>
+    /* Общий стиль */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(135deg, #f0f4f8, #e6ebf2);
+      margin: 0;
+      padding: 15px;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 26px;
+      font-weight: 700;
+      color: #2c3e50;
+    }
+
+    .floor {
+      margin-bottom: 35px;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      padding: 20px;
+      animation: fadeInUp 0.6s ease;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #34495e;
+    }
+
+    .doors {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    button {
+      padding: 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: 14px;
+      background: #4a90e2;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: transform 0.15s ease, background 0.3s ease;
+    }
+
+    button:hover {
+      background: #357ABD;
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: scale(0.97);
+      background: #2c5aa0;
+    }
+
+    #status {
+      text-align: center;
+      margin-top: 25px;
+      font-weight: bold;
+      font-size: 18px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+    }
+
+    #status.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Анимация появления карточек */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🏢 Управление дверями</h1>
+
+  <div class="floor">
+    <h2>29 этаж</h2>
+    <div class="doors">
+      <button onclick="openDoor('29-hall-left')">Холл левая</button>
+      <button onclick="openDoor('29-hall-right')">Холл правая</button>
+      <button onclick="openDoor('29-cargo-left')">Грузовой левый</button>
+      <button onclick="openDoor('29-cargo-right')">Грузовой правый</button>
+    </div>
+  </div>
+
+  <div class="floor">
+    <h2>30 этаж</h2>
+    <div class="doors">
+      <button onclick="openDoor('30-hall-left')">Холл левая</button>
+      <button onclick="openDoor('30-hall-right')">Холл правая</button>
+      <button onclick="openDoor('30-cargo-left')">Грузовой левый</button>
+      <button onclick="openDoor('30-cargo-right')">Грузовой правый</button>
+    </div>
+  </div>
+
+  <div class="floor">
+    <h2>31 этаж (в разработке)</h2>
+    <div class="doors">
+      <button onclick="openDoor('31-hall')">Холл</button>
+      <button onclick="openDoor('31-cargo')">Грузовой</button>
+    </div>
+  </div>
+
+  <div id="status"></div>
+
+  <script>
+    async function openDoor(doorId) {
+      const url = "http://188.234.35.95:8003/ISAPI/AccessControl/RemoteControl/door/1";
+      const xml = '<?xml version="1.0" encoding="UTF-8"?><RemoteControlDoor><cmd>open</cmd></RemoteControlDoor>';
+
+      const status = document.getElementById("status");
+      status.classList.remove("show");
+
+      try {
+        const response = await fetch(url, {
+          method: "PUT",
+          headers: { "Content-Type": "application/xml" },
+          body: xml
+        });
+
+        if (response.ok) {
+          status.innerText = "✅ " + doorId + " открыта";
+        } else {
+          status.innerText = "❌ Ошибка " + response.status;
+        }
+      } catch (e) {
+        status.innerText = "⚠️ Нет соединения";
+      }
+
+      setTimeout(() => {
+        status.classList.add("show");
+      }, 50);
+    }
+  </script>
+
+</body>
+</html>
